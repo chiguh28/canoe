@@ -254,9 +254,7 @@ class TestSignalRepository:
             ),
         ]
 
-    def test_add_and_get_all(
-        self, repository: SignalRepository, sample_signals: list[SignalInfo]
-    ):
+    def test_add_and_get_all(self, repository: SignalRepository, sample_signals: list[SignalInfo]):
         """信号の追加と全件取得"""
         repository.add_signals(sample_signals)
         all_signals = repository.get_all()
@@ -289,9 +287,7 @@ class TestSignalRepository:
         assert len(lin_signals) == 1
         assert lin_signals[0].protocol == Protocol.LIN
 
-    def test_get_by_message(
-        self, repository: SignalRepository, sample_signals: list[SignalInfo]
-    ):
+    def test_get_by_message(self, repository: SignalRepository, sample_signals: list[SignalInfo]):
         """メッセージ名で信号を取得"""
         repository.add_signals(sample_signals)
         signals = repository.get_by_message("EngineStatus")
