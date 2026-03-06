@@ -1,0 +1,63 @@
+LIN_description_file;
+LDF_file_revision = "2.0";
+LIN_protocol_version = "2.0";
+LIN_language_version = "2.0";
+LIN_speed = 19.2 kbps;
+
+Nodes {
+  Master: ECU_Master, 5 ms, 0.1 ms ;
+  Slaves: ECU_Slave1, ECU_Slave2 ;
+}
+
+Node_attributes {
+  ECU_Slave1 {
+    LIN_protocol = "2.0" ;
+    configured_NAD = 0x01 ;
+    product_id = 0x1E, 0x01, 0 ;
+  }
+  ECU_Slave2 {
+    LIN_protocol = "2.0" ;
+    configured_NAD = 0x02 ;
+    product_id = 0x1F, 0x01, 0 ;
+  }
+}
+
+Signals {
+  EngineSpeed: 16, 0, ECU_Master, ECU_Slave1 ;
+  ThrottlePosition: 8, 0, ECU_Master, ECU_Slave1 ;
+  VehicleSpeed: 16, 0, ECU_Slave2, ECU_Master ;
+  BatteryVoltage: 8, 0, ECU_Slave2, ECU_Master ;
+}
+
+Frames {
+  EngineData: 0x10, ECU_Slave1, 4 {
+    EngineSpeed, 0 ;
+    ThrottlePosition, 16 ;
+  }
+  VehicleData: 0x11, ECU_Slave2, 3 {
+    VehicleSpeed, 0 ;
+    BatteryVoltage, 16 ;
+  }
+}
+
+Signal_encoding_types {
+  EngineSpeedEncoding {
+    physical_value, 0, 8000, 0.125, 0, "rpm" ;
+  }
+  ThrottlePositionEncoding {
+    physical_value, 0, 100, 0.4, 0, "%" ;
+  }
+  VehicleSpeedEncoding {
+    physical_value, 0, 200, 0.1, 0, "km/h" ;
+  }
+  BatteryVoltageEncoding {
+    physical_value, 0, 16, 0.1, 0, "V" ;
+  }
+}
+
+Signal_representation {
+  EngineSpeedEncoding: EngineSpeed ;
+  ThrottlePositionEncoding: ThrottlePosition ;
+  VehicleSpeedEncoding: VehicleSpeed ;
+  BatteryVoltageEncoding: BatteryVoltage ;
+}
