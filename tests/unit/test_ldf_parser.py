@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from src.models.signal_model import Protocol, SignalInfo
-from src.parsers.ldf_parser import LDFParser, LDFParseError
+from src.parsers.ldf_parser import LDFParseError, LDFParser
 
 
 @pytest.fixture
