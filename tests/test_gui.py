@@ -6,6 +6,7 @@ This test suite follows TDD approach:
 - Refactor: Clean up code while keeping tests green
 """
 
+import os
 from unittest.mock import Mock, patch
 
 import pytest
@@ -13,6 +14,10 @@ import pytest
 from src.gui.main_window import MainWindow
 
 
+@pytest.mark.skipif(
+    os.getenv("CI") == "true" or os.getenv("DISPLAY") is None,
+    reason="GUI tests require a display (skip in headless CI)",
+)
 class TestMainWindow:
     """MainWindow class tests"""
 
