@@ -1,0 +1,53 @@
+VERSION ""
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_SGTYPE_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: ECU1 ECU2 ECU3
+
+BO_ 256 EngineData: 8 ECU1
+ SG_ EngineSpeed : 0|16@1+ (1,0) [0|8000] "rpm" ECU2,ECU3
+ SG_ ThrottlePosition : 16|8@1+ (0.5,0) [0|100] "%" ECU2
+ SG_ CoolantTemp : 24|8@1- (1,-40) [-40|215] "degC" ECU2
+
+BO_ 512 VehicleSpeed: 4 ECU2
+ SG_ Speed : 0|16@1+ (0.01,0) [0|250] "km/h" ECU1,ECU3
+ SG_ Odometer : 16|16@1+ (1,0) [0|65535] "km" ECU1
+
+BO_ 768 GearStatus: 2 ECU3
+ SG_ CurrentGear : 0|4@1+ (1,0) [0|8] "" ECU1,ECU2
+ SG_ GearRequest : 4|4@1+ (1,0) [0|8] "" ECU1
+
+CM_ SG_ 256 EngineSpeed "Engine rotational speed";
+CM_ SG_ 256 ThrottlePosition "Throttle pedal position percentage";
+CM_ SG_ 512 Speed "Vehicle speed in km/h";
+
+BA_DEF_ SG_  "GenSigStartValue" INT 0 100000;
+BA_DEF_DEF_  "GenSigStartValue" 0;
