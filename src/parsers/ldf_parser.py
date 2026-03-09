@@ -6,7 +6,7 @@ SignalInfo オブジェクトのリストに変換する。
 
 from pathlib import Path
 
-import ldfparser  # type: ignore[import-untyped]
+import ldfparser
 
 from src.models.signal_model import Protocol, SignalInfo
 

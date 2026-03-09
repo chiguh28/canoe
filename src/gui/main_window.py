@@ -6,6 +6,10 @@ This module provides the main GUI window with tabs, menu bar, and status bar.
 import tkinter as tk
 from tkinter import ttk
 
+from src.gui.execution_tab import ExecutionTab
+from src.gui.signal_tab import SignalTab
+from src.models.signal_model import SignalRepository
+
 
 class MainWindow:
     """メインウィンドウ
@@ -23,6 +27,8 @@ class MainWindow:
         self.root.title(self.TITLE)
         self.root.geometry(f"{self.DEFAULT_WIDTH}x{self.DEFAULT_HEIGHT}")
         self.root.minsize(800, 600)
+
+        self.signal_repository = SignalRepository()
 
         self._create_menu()
         self._create_notebook()
@@ -55,21 +61,21 @@ class MainWindow:
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Phase 1: 信号情報タブ（SignalTab を配置）
+        # Phase 1: 信号情報タブ
         self.signal_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.signal_frame, text="信号情報")
+        self.signal_tab = SignalTab(self.signal_frame, self.signal_repository)
 
-        # Phase 2: テストパターンタブ（プレースホルダ）
+        # Phase 2: テストパターンタブ
         ph2_frame = ttk.Frame(self.notebook)
-        ttk.Label(ph2_frame, text="準備中（Phase 2 で実装）").pack(pady=50)
         self.notebook.add(ph2_frame, text="テストパターン作成")
 
-        # Phase 3: テスト実行タブ（プレースホルダ）
+        # Phase 3: テスト実行タブ
         ph3_frame = ttk.Frame(self.notebook)
-        ttk.Label(ph3_frame, text="準備中（Phase 3 で実装）").pack(pady=50)
         self.notebook.add(ph3_frame, text="テスト実行")
+        self.execution_tab = ExecutionTab(ph3_frame)
 
-        # Phase 4: 結果・帳票タブ（プレースホルダ）
+        # Phase 4: 結果・帳票タブ
         ph4_frame = ttk.Frame(self.notebook)
         ttk.Label(ph4_frame, text="準備中（Phase 4 で実装）").pack(pady=50)
         self.notebook.add(ph4_frame, text="結果・帳票")
