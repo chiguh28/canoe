@@ -34,5 +34,32 @@ except ModuleNotFoundError:
     tkinter_mock.GROOVE = "groove"
     tkinter_mock.SOLID = "solid"
 
+    # Mock variable classes (StringVar, IntVar, etc.)
+    class MockVar:
+        """Mock for tkinter variable classes"""
+
+        def __init__(self, master: object = None, value: object = None) -> None:
+            self._value = value if value is not None else ""
+
+        def get(self) -> object:
+            return self._value
+
+        def set(self, value: object) -> None:
+            self._value = value
+
+        def trace_add(self, *args: object, **kwargs: object) -> str:
+            return "mock_trace_id"
+
+        def trace_remove(self, *args: object, **kwargs: object) -> None:
+            pass
+
+    tkinter_mock.StringVar = MockVar
+    tkinter_mock.IntVar = MockVar
+    tkinter_mock.BooleanVar = MockVar
+    tkinter_mock.DoubleVar = MockVar
+
+    # Mock Tk root window
+    tkinter_mock.Tk = MagicMock
+
     sys.modules["tkinter"] = tkinter_mock
     sys.modules["tkinter.ttk"] = MagicMock()
