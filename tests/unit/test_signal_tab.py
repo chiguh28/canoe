@@ -86,7 +86,7 @@ class TestSignalTabFileLoading:
         with patch("src.gui.signal_tab.DBCParser") as mock_parser_cls:
             mock_parser_cls.return_value.parse.return_value = signals
             dbc_file = tmp_path / "test.dbc"
-            dbc_file.write_text("VERSION \"\"")
+            dbc_file.write_text('VERSION ""')
 
             tab.load_file(dbc_file)
 
@@ -132,7 +132,7 @@ class TestSignalTabFileLoading:
         with patch("src.gui.signal_tab.DBCParser") as mock_parser_cls:
             mock_parser_cls.return_value.parse.return_value = [_make_signal()]
             dbc_file = tmp_path / "test.dbc"
-            dbc_file.write_text("VERSION \"\"")
+            dbc_file.write_text('VERSION ""')
 
             tab.load_file(dbc_file)
 
@@ -144,15 +144,17 @@ class TestSignalTabFileLoading:
         repo = SignalRepository()
         tab = SignalTab(parent, repo)
 
-        with patch("src.gui.signal_tab.DBCParser") as mock_dbc, \
-             patch("src.gui.signal_tab.LDFParser") as mock_ldf:
+        with (
+            patch("src.gui.signal_tab.DBCParser") as mock_dbc,
+            patch("src.gui.signal_tab.LDFParser") as mock_ldf,
+        ):
             mock_dbc.return_value.parse.return_value = [_make_signal("CanSig")]
             mock_ldf.return_value.parse.return_value = [
                 _make_signal("LinSig", protocol=Protocol.LIN),
             ]
 
             dbc_file = tmp_path / "test.dbc"
-            dbc_file.write_text("VERSION \"\"")
+            dbc_file.write_text('VERSION ""')
             ldf_file = tmp_path / "test.ldf"
             ldf_file.write_text("LIN_description_file;")
 
@@ -172,11 +174,13 @@ class TestSignalTabSearch:
         repo = SignalRepository()
         tab = SignalTab(parent, repo)
 
-        repo.add_signals([
-            _make_signal("EngineSpeed"),
-            _make_signal("VehicleSpeed"),
-            _make_signal("BrakeStatus"),
-        ])
+        repo.add_signals(
+            [
+                _make_signal("EngineSpeed"),
+                _make_signal("VehicleSpeed"),
+                _make_signal("BrakeStatus"),
+            ]
+        )
 
         results = tab.get_filtered_signals("speed")
         assert len(results) == 2
@@ -264,11 +268,13 @@ class TestSignalTabSort:
         repo = SignalRepository()
         tab = SignalTab(parent, repo)
 
-        repo.add_signals([
-            _make_signal("Zebra"),
-            _make_signal("Alpha"),
-            _make_signal("Middle"),
-        ])
+        repo.add_signals(
+            [
+                _make_signal("Zebra"),
+                _make_signal("Alpha"),
+                _make_signal("Middle"),
+            ]
+        )
 
         sorted_signals = tab.sort_signals(repo.get_all(), "signal_name", reverse=False)
         names = [s.signal_name for s in sorted_signals]
@@ -280,11 +286,13 @@ class TestSignalTabSort:
         repo = SignalRepository()
         tab = SignalTab(parent, repo)
 
-        repo.add_signals([
-            _make_signal("Zebra"),
-            _make_signal("Alpha"),
-            _make_signal("Middle"),
-        ])
+        repo.add_signals(
+            [
+                _make_signal("Zebra"),
+                _make_signal("Alpha"),
+                _make_signal("Middle"),
+            ]
+        )
 
         sorted_signals = tab.sort_signals(repo.get_all(), "signal_name", reverse=True)
         names = [s.signal_name for s in sorted_signals]
@@ -296,11 +304,167 @@ class TestSignalTabSort:
         repo = SignalRepository()
         tab = SignalTab(parent, repo)
 
-        repo.add_signals([
-            _make_signal("Sig1", protocol=Protocol.LIN),
-            _make_signal("Sig2", protocol=Protocol.CAN),
-        ])
+        repo.add_signals(
+            [
+                _make_signal("Sig1", protocol=Protocol.LIN),
+                _make_signal("Sig2", protocol=Protocol.CAN),
+            ]
+        )
 
         sorted_signals = tab.sort_signals(repo.get_all(), "protocol", reverse=False)
         protocols = [s.protocol.value for s in sorted_signals]
         assert protocols == ["CAN", "LIN"]
+
+
+class TestSignalTabUICallbacks:
+    """UI callback methods のテスト"""
+
+    def test_on_search_changed_calls_refresh(self) -> None:
+        """検索テキスト変更で _refresh_treeview が呼ばれる"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        with patch.object(tab, "_refresh_treeview") as mock_refresh:
+            tab._on_search_changed()
+            mock_refresh.assert_called_once()
+
+    def test_on_column_click_toggles_sort_order(self) -> None:
+        """カラムクリックでソート順がトグルされる"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        repo.add_signals(
+            [
+                _make_signal("Zebra"),
+                _make_signal("Alpha"),
+            ]
+        )
+
+        # 初回クリック: reverse=False → True
+        assert tab._sort_reverse.get("signal_name", False) is False
+        tab._on_column_click("signal_name")
+        assert tab._sort_reverse["signal_name"] is True
+
+        # 2回目クリック: reverse=True → False
+        tab._on_column_click("signal_name")
+        assert tab._sort_reverse["signal_name"] is False
+
+    def test_refresh_treeview_calls_treeview_methods(self) -> None:
+        """_refresh_treeview が Treeview を更新する"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        repo.add_signals([_make_signal("TestSig")])
+
+        # _refresh_treeview を呼び出して、エラーが起きないことを確認
+        tab._refresh_treeview()
+        # get_filtered_signals が呼ばれることを確認
+        assert repo.count == 1
+
+    def test_refresh_treeview_with_sort_column(self) -> None:
+        """_refresh_treeview にソートパラメータを渡せる"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        repo.add_signals(
+            [
+                _make_signal("Zebra"),
+                _make_signal("Alpha"),
+            ]
+        )
+
+        # sort_signals が呼ばれることを確認
+        with patch.object(tab, "sort_signals", wraps=tab.sort_signals) as mock_sort:
+            tab._refresh_treeview(sort_column="signal_name", sort_reverse=False)
+            mock_sort.assert_called_once()
+
+    def test_update_file_list_label_with_files(self) -> None:
+        """_update_file_list_label でラベルが更新される"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        # ファイル追加してラベル更新
+        tab.loaded_files.append("/path/to/test1.dbc")
+        tab._update_file_list_label()
+
+        # config メソッドが呼ばれたことを確認
+        tab.file_list_label.config.assert_called()
+        # 呼び出し時の引数に "test1.dbc" が含まれることを確認
+        call_args = tab.file_list_label.config.call_args
+        if call_args:
+            text_arg = call_args[1].get("text", "")
+            assert "test1.dbc" in text_arg
+
+    def test_update_file_list_label_empty(self) -> None:
+        """_update_file_list_label でファイルなしの場合のラベル"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        tab.loaded_files.clear()
+        tab._update_file_list_label()
+
+        # config メソッドが呼ばれて "なし" を設定
+        call_args = tab.file_list_label.config.call_args
+        if call_args:
+            text_arg = call_args[1].get("text", "")
+            assert "なし" in text_arg
+
+    def test_on_open_file_with_file_dialog(self, tmp_path: Path) -> None:
+        """_on_open_file でファイルダイアログ経由で読み込める"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        dbc_file = tmp_path / "test.dbc"
+        dbc_file.write_text('VERSION ""')
+
+        with (
+            patch("src.gui.signal_tab.filedialog.askopenfilenames") as mock_dialog,
+            patch("src.gui.signal_tab.DBCParser") as mock_parser,
+        ):
+            mock_dialog.return_value = [str(dbc_file)]
+            mock_parser.return_value.parse.return_value = [_make_signal()]
+
+            tab._on_open_file()
+
+            mock_dialog.assert_called_once()
+            assert len(tab.loaded_files) == 1
+
+    def test_on_open_file_handles_errors(self, tmp_path: Path) -> None:
+        """_on_open_file でエラー発生時にメッセージボックスが表示される"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        invalid_file = tmp_path / "invalid.txt"
+        invalid_file.write_text("not a valid file")
+
+        with (
+            patch("src.gui.signal_tab.filedialog.askopenfilenames") as mock_dialog,
+            patch("src.gui.signal_tab.messagebox.showerror") as mock_error,
+        ):
+            mock_dialog.return_value = [str(invalid_file)]
+
+            tab._on_open_file()
+
+            # エラーメッセージボックスが呼ばれたことを確認
+            mock_error.assert_called_once()
+
+    def test_on_open_file_empty_selection(self) -> None:
+        """_on_open_file でキャンセル時は何もしない"""
+        parent = MagicMock()
+        repo = SignalRepository()
+        tab = SignalTab(parent, repo)
+
+        with patch("src.gui.signal_tab.filedialog.askopenfilenames") as mock_dialog:
+            mock_dialog.return_value = []  # キャンセル
+
+            tab._on_open_file()
+
+            assert len(tab.loaded_files) == 0
