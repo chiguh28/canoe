@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from src.gui.execution_tab import ExecutionTab
+from src.gui.keyboard_shortcuts import KeyboardShortcutManager
 from src.gui.signal_tab import SignalTab
 from src.models.signal_model import SignalRepository
 
@@ -29,10 +30,12 @@ class MainWindow:
         self.root.minsize(800, 600)
 
         self.signal_repository = SignalRepository()
+        self.shortcut_manager = KeyboardShortcutManager()
 
         self._create_menu()
         self._create_notebook()
         self._create_statusbar()
+        self._setup_keyboard_shortcuts()
 
     def _create_menu(self) -> None:
         """メニューバー作成"""
@@ -88,6 +91,16 @@ class MainWindow:
     def set_status(self, message: str) -> None:
         """ステータスバーのメッセージを更新"""
         self.statusbar.config(text=message)
+
+    def _setup_keyboard_shortcuts(self) -> None:
+        """キーボードショートカットを設定"""
+        self.shortcut_manager.register(
+            "Ctrl+O", "ファイルを開く", self.signal_tab._on_open_file
+        )
+        self.shortcut_manager.register(
+            "Ctrl+Q", "終了", self.root.quit
+        )
+        self.shortcut_manager.bind_to_widget(self.root)
 
     def run(self) -> None:
         """メインループ開始"""

@@ -12,6 +12,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import TYPE_CHECKING
 
+from src.gui.error_messages import ErrorMessages
 from src.models.signal_model import SignalInfo, SignalRepository
 from src.parsers.dbc_parser import DBCParser
 from src.parsers.ldf_parser import LDFParser
@@ -130,8 +131,12 @@ class SignalTab:
         for fp in file_paths:
             try:
                 self.load_file(Path(fp))
+            except FileNotFoundError:
+                messagebox.showerror("エラー", ErrorMessages.file_not_found(fp))
+            except ValueError as e:
+                messagebox.showerror("エラー", ErrorMessages.unsupported_format(str(e)))
             except Exception as e:
-                messagebox.showerror("読み込みエラー", str(e))
+                messagebox.showerror("エラー", ErrorMessages.parse_error(fp, str(e)))
 
     def load_file(self, file_path: Path) -> None:
         """ファイルを読み込んで信号をリポジトリに追加
