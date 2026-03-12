@@ -17,7 +17,7 @@ from src.parsers.dbc_parser import DBCParser
 from src.parsers.ldf_parser import LDFParser
 
 if TYPE_CHECKING:
-    pass
+    from collections.abc import Callable
 
 
 class SignalTab:
@@ -48,11 +48,17 @@ class SignalTab:
         "プロトコル",
     ]
 
-    def __init__(self, parent: tk.Widget | ttk.Frame, repository: SignalRepository) -> None:
+    def __init__(
+        self,
+        parent: tk.Widget | ttk.Frame,
+        repository: SignalRepository,
+        status_callback: Callable[[str], None] | None = None,
+    ) -> None:
         self.parent = parent
         self.repository = repository
         self.loaded_files: list[str] = []
         self._sort_reverse: dict[str, bool] = {}
+        self._status_callback = status_callback  # F06: ステータスバーコールバック
 
         self._create_widgets()
 
@@ -63,9 +69,7 @@ class SignalTab:
         toolbar.pack(fill=tk.X, padx=5, pady=5)
 
         # ファイルを開くボタン
-        self.open_button = ttk.Button(
-            toolbar, text="ファイルを開く", command=self._on_open_file
-        )
+        self.open_button = ttk.Button(toolbar, text="ファイルを開く", command=self._on_open_file)
         self.open_button.pack(side=tk.LEFT, padx=5)
 
         # 絞り込み検索
@@ -131,7 +135,10 @@ class SignalTab:
             try:
                 self.load_file(Path(fp))
             except Exception as e:
-                messagebox.showerror("読み込みエラー", str(e))
+                # F03: エラーメッセージの日本語化・詳細化
+                file_name = Path(fp).name
+                error_message = self._format_error_message(file_name, e)
+                messagebox.showerror("読み込みエラー", error_message)
 
     def load_file(self, file_path: Path) -> None:
         """ファイルを読み込んで信号をリポジトリに追加
@@ -157,6 +164,11 @@ class SignalTab:
         self.loaded_files.append(str(file_path))
         self._update_file_list_label()
         self._refresh_treeview()
+        # F06: ステータスバー更新
+        if self._status_callback:
+            self._status_callback(
+                f"信号読み込み完了: {len(signals)}件追加 (総計: {self.repository.count}件)"
+            )
 
     def _update_file_list_label(self) -> None:
         """読み込みファイル一覧ラベルを更新"""
@@ -218,6 +230,42 @@ class SignalTab:
             signal.unit,
             signal.protocol.value,
         )
+
+    def _format_error_message(self, file_name: str, error: Exception) -> str:
+        """エラーメッセージをフォーマットする (F03)
+
+        Args:
+            file_name: エラーが発生したファイル名
+            error: 発生した例外
+
+        Returns:
+            ユーザーフレンドリーなエラーメッセージ
+        """
+        error_str = str(error)
+
+        # エラー種別に応じたメッセージ
+        if "サポートされていないファイル形式" in error_str:
+            return (
+                f"「{file_name}」はサポートされていないファイル形式です。\n"
+                f"DBC または LDF ファイルを選択してください。\n\n詳細: {error_str}"
+            )
+        elif "No such file" in error_str or "FileNotFoundError" in error.__class__.__name__:
+            return (
+                f"「{file_name}」の読み込みに失敗しました。\n"
+                f"ファイルが存在するか確認してください。\n\n詳細: {error_str}"
+            )
+        elif "Invalid DBC" in error_str or "DBCParseError" in error.__class__.__name__:
+            return (
+                f"「{file_name}」は有効な DBC ファイルではありません。\n"
+                f"CANoe で正しく読み込めるファイルを選択してください。\n\n詳細: {error_str}"
+            )
+        elif "Invalid LDF" in error_str or "LDFParseError" in error.__class__.__name__:
+            return (
+                f"「{file_name}」は有効な LDF ファイルではありません。\n"
+                f"CANoe で正しく読み込めるファイルを選択してください。\n\n詳細: {error_str}"
+            )
+        else:
+            return f"「{file_name}」の読み込み中にエラーが発生しました。\n\n詳細: {error_str}"
 
     def sort_signals(
         self,

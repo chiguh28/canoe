@@ -57,9 +57,7 @@ class SignalSelector:
         self.signal_combo.bind("<<ComboboxSelected>>", self._on_combo_selected)
 
         # 追加ボタン
-        self.add_button = ttk.Button(
-            combo_frame, text="追加", command=self._on_add_signal
-        )
+        self.add_button = ttk.Button(combo_frame, text="追加", command=self._on_add_signal)
         self.add_button.pack(side=tk.LEFT, padx=5)
 
         # 詳細情報パネル

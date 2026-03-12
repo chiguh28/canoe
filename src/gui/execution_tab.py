@@ -11,6 +11,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from src.engine.test_runner import ExecutionSummary, TestRunner
+from src.models.signal_model import SignalRepository
 from src.models.test_pattern import TestPattern
 
 
@@ -24,9 +25,11 @@ class ExecutionTab:
         self,
         parent: tk.Widget | ttk.Frame,
         runner: TestRunner | None = None,
+        repository: SignalRepository | None = None,
     ) -> None:
         self.parent = parent
         self.runner = runner or TestRunner()
+        self.repository = repository  # F04: タブ間データ連携
         self._is_running: bool = False
         self._execution_thread: threading.Thread | None = None
         self._config_path: str = ""
@@ -49,18 +52,14 @@ class ExecutionTab:
         self.config_var = tk.StringVar()
         self.config_entry = ttk.Entry(cfg_row, textvariable=self.config_var, width=50)
         self.config_entry.pack(side=tk.LEFT, padx=5)
-        self.browse_button = ttk.Button(
-            cfg_row, text="参照...", command=self._on_browse_config
-        )
+        self.browse_button = ttk.Button(cfg_row, text="参照...", command=self._on_browse_config)
         self.browse_button.pack(side=tk.LEFT)
 
         # 制御ボタンフレーム
         control_frame = ttk.Frame(self.parent)
         control_frame.pack(fill=tk.X, padx=5, pady=5)
 
-        self.start_button = ttk.Button(
-            control_frame, text="実行開始", command=self._on_start
-        )
+        self.start_button = ttk.Button(control_frame, text="実行開始", command=self._on_start)
         self.start_button.pack(side=tk.LEFT, padx=5)
 
         self.abort_button = ttk.Button(
@@ -77,9 +76,7 @@ class ExecutionTab:
         progress_frame.pack(fill=tk.X, padx=5, pady=5)
 
         self.progress_var = tk.IntVar(value=0)
-        self.progress_bar = ttk.Progressbar(
-            progress_frame, variable=self.progress_var, maximum=100
-        )
+        self.progress_bar = ttk.Progressbar(progress_frame, variable=self.progress_var, maximum=100)
         self.progress_bar.pack(fill=tk.X, padx=5, pady=5)
 
         self.progress_label_var = tk.StringVar(value="0 / 0")
@@ -133,9 +130,7 @@ class ExecutionTab:
     def _run_tests(self) -> None:
         """テスト実行（別スレッド）"""
         try:
-            self._summary = self.runner.execute(
-                self._patterns, config_file=self._config_path
-            )
+            self._summary = self.runner.execute(self._patterns, config_file=self._config_path)
             self._add_log(f"実行完了: {self._summary.passed} OK / {self._summary.failed} NG")
         except Exception as e:
             self._add_log(f"実行エラー: {e}")
