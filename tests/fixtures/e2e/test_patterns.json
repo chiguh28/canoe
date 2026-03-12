@@ -1,0 +1,32 @@
+[
+  {
+    "test_case_id": "TC-001",
+    "test_case_name": "エンジン回転数設定テスト",
+    "target_signal": "EngineData.EngineSpeed",
+    "operation": "エンジン回転数を 2000rpm に設定する",
+    "expected_value": "スロットル開度が 20% 以上",
+    "precondition": "エンジン停止状態",
+    "wait_time_ms": 1000,
+    "remarks": ""
+  },
+  {
+    "test_case_id": "TC-002",
+    "test_case_name": "ブレーキペダル応答テスト",
+    "target_signal": "BrakeData.BrakePedal",
+    "operation": "ブレーキペダルを 50% まで踏み込む",
+    "expected_value": "ブレーキランプが点灯",
+    "precondition": "車速 60km/h 走行中",
+    "wait_time_ms": 500,
+    "remarks": "安全系テスト"
+  },
+  {
+    "test_case_id": "TC-003",
+    "test_case_name": "冷却水温度変化テスト",
+    "target_signal": "EngineData.CoolantTemp",
+    "operation": "冷却水温度を監視する（操作なし）",
+    "expected_value": "温度が 80℃〜100℃ の範囲内",
+    "precondition": "エンジン暖機完了後",
+    "wait_time_ms": 3000,
+    "remarks": "RANGE 判定"
+  }
+]

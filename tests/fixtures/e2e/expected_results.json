@@ -1,0 +1,12 @@
+{
+  "total": 3,
+  "passed": 2,
+  "failed": 1,
+  "error": 0,
+  "pass_rate": 66.7,
+  "results": [
+    {"test_case_id": "TC-001", "status": "PASSED"},
+    {"test_case_id": "TC-002", "status": "PASSED"},
+    {"test_case_id": "TC-003", "status": "FAILED", "reason": "温度が範囲外 (75.3℃)"}
+  ]
+}

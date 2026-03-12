@@ -51,6 +51,10 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
+markers = [
+    "e2e: E2E テスト（Phase 5）",
+    "slow: 実行時間が長いテスト",
+]
 
 [tool.ruff]
 target-version = "py310"
@@ -89,4 +93,8 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = "ldfparser"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["openpyxl", "openpyxl.*", "win32com", "win32com.*", "httpx"]
 ignore_missing_imports = true

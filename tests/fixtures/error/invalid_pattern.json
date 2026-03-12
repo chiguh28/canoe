@@ -1,0 +1,17 @@
+[
+  {
+    "test_case_id": "",
+    "test_case_name": "",
+    "target_signal": "",
+    "operation": "",
+    "expected_value": "",
+    "precondition": "",
+    "wait_time_ms": -100,
+    "remarks": ""
+  },
+  "this is not a valid pattern object",
+  {
+    "test_case_id": "TC-BAD",
+    "missing_required_fields": true
+  }
+]
