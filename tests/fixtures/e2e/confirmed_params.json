@@ -1,0 +1,52 @@
+[
+  {
+    "test_case_id": "TC-001",
+    "params": {
+      "signal_name": "EngineSpeed",
+      "message_name": "EngineData",
+      "action": "set",
+      "value": 2000,
+      "channel": 1,
+      "wait_ms": 1000,
+      "expected_signal": "ThrottlePosition",
+      "expected_message": "EngineData",
+      "expected_value": 20,
+      "tolerance": 0,
+      "judgment_type": "range"
+    }
+  },
+  {
+    "test_case_id": "TC-002",
+    "params": {
+      "signal_name": "BrakePedal",
+      "message_name": "BrakeData",
+      "action": "set",
+      "value": 50,
+      "channel": 1,
+      "wait_ms": 500,
+      "expected_signal": "BrakeLamp",
+      "expected_message": "BrakeData",
+      "expected_value": 1,
+      "tolerance": 0,
+      "judgment_type": "exact"
+    }
+  },
+  {
+    "test_case_id": "TC-003",
+    "params": {
+      "signal_name": "CoolantTemp",
+      "message_name": "EngineData",
+      "action": "get",
+      "value": null,
+      "channel": 1,
+      "wait_ms": 3000,
+      "expected_signal": "CoolantTemp",
+      "expected_message": "EngineData",
+      "expected_value": null,
+      "tolerance": 0,
+      "judgment_type": "range",
+      "range_min": 80,
+      "range_max": 100
+    }
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "sheets": ["サマリ", "統計", "詳細"],
+  "summary": {
+    "total": 3,
+    "passed": 2,
+    "failed": 1,
+    "error": 0,
+    "pass_rate": 66.7
+  },
+  "detail_count": 3
+}
