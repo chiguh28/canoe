@@ -437,7 +437,7 @@ class TestSignalTabUICallbacks:
             assert len(tab.loaded_files) == 1
 
     def test_on_open_file_handles_errors(self, tmp_path: Path) -> None:
-        """_on_open_file でエラー発生時にメッセージボックスが表示される"""
+        """_on_open_file でエラー発生時にメッセージボックスが表示される (F03)"""
         parent = MagicMock()
         repo = SignalRepository()
         tab = SignalTab(parent, repo)
@@ -455,6 +455,16 @@ class TestSignalTabUICallbacks:
 
             # エラーメッセージボックスが呼ばれたことを確認
             mock_error.assert_called_once()
+            # F03: エラーメッセージにファイル名が含まれることを確認
+            call_args = mock_error.call_args
+            if call_args:
+                error_message = call_args[0][1] if len(call_args[0]) > 1 else ""
+                assert "invalid.txt" in error_message, "Error message should contain filename"
+                # 日本語メッセージであることを確認（複数パターン対応）
+                assert any(
+                    keyword in error_message
+                    for keyword in ["読み込み", "サポートされていない", "ファイル形式"]
+                ), "Error message should be in Japanese"
 
     def test_on_open_file_empty_selection(self) -> None:
         """_on_open_file でキャンセル時は何もしない"""
