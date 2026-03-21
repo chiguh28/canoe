@@ -8,9 +8,15 @@ from src.models.signal_model import Protocol, SignalInfo, SignalRepository
 
 def _make_signal(name: str = "TestSig", message: str = "TestMsg") -> SignalInfo:
     return SignalInfo(
-        signal_name=name, message_name=message, message_id=0x100,
-        data_type="unsigned", min_value=0.0, max_value=255.0,
-        unit="rpm", node_info="ECU1 -> ECU2", source_file="test.dbc",
+        signal_name=name,
+        message_name=message,
+        message_id=0x100,
+        data_type="unsigned",
+        min_value=0.0,
+        max_value=255.0,
+        unit="rpm",
+        node_info="ECU1 -> ECU2",
+        source_file="test.dbc",
         protocol=Protocol.CAN,
     )
 
@@ -46,10 +52,12 @@ class TestSignalSelectorSearch:
 
     def test_filter_signals(self) -> None:
         repo = SignalRepository()
-        repo.add_signals([
-            _make_signal("EngineSpeed"),
-            _make_signal("BrakeStatus"),
-        ])
+        repo.add_signals(
+            [
+                _make_signal("EngineSpeed"),
+                _make_signal("BrakeStatus"),
+            ]
+        )
         selector = SignalSelector(MagicMock(), repo)
         results = selector.filter_signals("engine")
         assert len(results) == 1
